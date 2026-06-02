@@ -3,7 +3,7 @@ env:
   DERIVED_DATA_PATH: ".build/XcodeDerivedData"
 
 agents:
-  queue: "macos"
+  queue: "macos-medium"
 
 steps:
   - label: ":swift: Package checks"
