@@ -9,12 +9,37 @@ DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-.build/XcodeDerivedData}"
 CLANG_MODULE_CACHE_PATH="${CLANG_MODULE_CACHE_PATH:-$ROOT_DIR/.build/ModuleCache}"
 MAC_SCHEME="${MAC_SCHEME:-QuiltwrightMac}"
 IOS_SCHEME="${IOS_SCHEME:-QuiltwrightiOS}"
-DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
 
-export DEVELOPER_DIR
 export CLANG_MODULE_CACHE_PATH
 
+detect_developer_dir() {
+  if [[ -n "${DEVELOPER_DIR:-}" ]]; then
+    export DEVELOPER_DIR
+    return
+  fi
+
+  local selected_developer_dir
+  selected_developer_dir="$(xcode-select -p 2>/dev/null || true)"
+  if [[ -n "$selected_developer_dir" && -x "$selected_developer_dir/usr/bin/xcodebuild" ]]; then
+    DEVELOPER_DIR="$selected_developer_dir"
+    export DEVELOPER_DIR
+    return
+  fi
+
+  if [[ -x "/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild" ]]; then
+    DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
+    export DEVELOPER_DIR
+    return
+  fi
+
+  echo "Unable to find a full Xcode installation." >&2
+  echo "Set DEVELOPER_DIR to an Xcode Contents/Developer path on this Buildkite agent." >&2
+  exit 1
+}
+
 ensure_xcode() {
+  detect_developer_dir
+
   if [[ ! -x "$DEVELOPER_DIR/usr/bin/xcodebuild" ]]; then
     echo "xcodebuild was not found at $DEVELOPER_DIR/usr/bin/xcodebuild" >&2
     echo "Set DEVELOPER_DIR to the Xcode installation on this Buildkite agent." >&2

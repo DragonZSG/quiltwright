@@ -28,10 +28,10 @@ destination.
 
 Buildkite runs `.buildkite/pipeline.yml`, which calls `script/ci.sh`.
 
-The pipeline expects the Buildkite macOS queue `macos-medium` with Xcode
-installed at `/Applications/Xcode.app/Contents/Developer`. If your Buildkite
-queue or Xcode path differs, update `.buildkite/pipeline.yml` or set
-`DEVELOPER_DIR` in the pipeline environment.
+The pipeline expects the Buildkite macOS queue `macos-medium`. `script/ci.sh`
+uses the agent's selected Xcode by default. If your Buildkite queue or Xcode
+path differs, update `.buildkite/pipeline.yml` or set `DEVELOPER_DIR` in the
+pipeline environment.
 
 Run the same checks locally with:
 
