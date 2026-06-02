@@ -1,0 +1,21 @@
+env:
+  DEVELOPER_DIR: "/Applications/Xcode.app/Contents/Developer"
+  DERIVED_DATA_PATH: ".build/XcodeDerivedData"
+
+agents:
+  queue: "macos"
+
+steps:
+  - label: ":swift: Package checks"
+    key: "package"
+    command: "script/ci.sh package"
+
+  - wait
+
+  - label: ":mac: macOS app build"
+    key: "macos"
+    command: "script/ci.sh macos"
+
+  - label: ":iphone: iOS simulator build"
+    key: "ios"
+    command: "script/ci.sh ios"
