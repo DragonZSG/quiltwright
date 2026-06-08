@@ -15,6 +15,23 @@ steps:
     command: "scripts/verify-harness.sh"
     depends_on: "package"
 
+  - label: ":shield: Quality guard"
+    key: "quality-guard"
+    command: |
+      set -euo pipefail
+      quality_guard_branch=""
+      if [[ -n "${BUILDKITE_PULL_REQUEST_BASE_BRANCH:-}" && "${BUILDKITE_PULL_REQUEST_BASE_BRANCH}" != "false" ]]; then
+        quality_guard_branch="${BUILDKITE_PULL_REQUEST_BASE_BRANCH}"
+      elif [[ -n "${BUILDKITE_PIPELINE_DEFAULT_BRANCH:-}" && "${BUILDKITE_BRANCH:-}" != "${BUILDKITE_PIPELINE_DEFAULT_BRANCH}" ]]; then
+        quality_guard_branch="${BUILDKITE_PIPELINE_DEFAULT_BRANCH}"
+      fi
+      if [[ -n "$quality_guard_branch" ]]; then
+        git fetch --no-tags --depth=100 origin "${quality_guard_branch}:refs/remotes/origin/${quality_guard_branch}"
+        export QUALITY_GUARD_BASE_REF="origin/${quality_guard_branch}"
+      fi
+      scripts/quality-guard.sh --fast
+    depends_on: "verify-harness"
+
   - wait
 
   - label: ":mac: macOS app build"

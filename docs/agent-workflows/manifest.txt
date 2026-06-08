@@ -1,0 +1,9 @@
+planning-loop|Planning loop
+implementation-loop|Implementation loop
+review-architecture|Architecture review loop
+review-tests|Test review loop
+review-security-privacy|Security and privacy review loop
+review-ui-platform|SwiftUI and platform review loop
+review-performance|Performance review loop
+review-plans-specs|Plan and spec review loop
+code-quality-guard|Code quality guard

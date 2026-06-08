@@ -14,10 +14,18 @@ quiltwright is a SwiftUI app for macOS and iOS written in Swift.
 - Lint: not configured (`lint_cmd: null`)
 - Format: not configured (`format_cmd: null`)
 - Verify harness: `scripts/verify-harness.sh`
+- Test harness verifier: `scripts/test-verify-harness.sh`
+- Fast quality guard: `scripts/quality-guard.sh --fast`
+- Full quality guard: `scripts/quality-guard.sh --full`
+- Test quality guard: `scripts/test-quality-guard.sh`
 
 ## Architecture
 
 `QuiltwrightUI` contains shared SwiftUI views and presentation data. `QuiltwrightMac` and `QuiltwrightiOS` are thin platform app entry targets. `QuiltwrightChecks` is a SwiftPM executable check target. Full details: [ARCHITECTURE.md](../ARCHITECTURE.md).
+
+## Agent Workflows
+
+Canonical workflow loops live in `docs/agent-workflows/`: `planning-loop`, `implementation-loop`, `review-architecture`, `review-tests`, `review-security-privacy`, `review-ui-platform`, `review-performance`, `review-plans-specs`, and `code-quality-guard`.
 
 ## Conventions
 
@@ -28,6 +36,8 @@ quiltwright is a SwiftUI app for macOS and iOS written in Swift.
 - Use 4-space indentation, no trailing whitespace, and a final newline.
 - Add checks under `Tests/QuiltwrightChecks` when XCTest is not yet configured.
 - Keep `Package.swift`, Xcode target membership, schemes, and CI commands in sync.
+
+For detailed project style rules, see [STYLEGUIDE.md](../STYLEGUIDE.md).
 
 ## Patterns to Follow
 
@@ -59,6 +69,7 @@ These files are living documents. Update them as the project evolves:
 
 - **After adding a new module**: Update ARCHITECTURE.md module map and dependency rules.
 - **After adding a new command**: Update the Commands section in all agent instruction files.
+- **After adding agent tooling or workflows**: Keep every supported agent surface equivalent. Codex uses `AGENTS.md`, `.agents/skills/<name>/SKILL.md`, `.codex/agents/<role>.toml`, and project `.codex/` config/hooks when deterministic policy requires it. Claude Code uses `CLAUDE.md`, `.claude/skills/<name>/SKILL.md`, `.claude/agents/<role>.md`, `.claude/commands/<name>.md` as legacy/manual compatibility, and hooks/settings only when deterministic policy requires it. GitHub Copilot uses `.github/copilot-instructions.md`, `.github/skills/<name>/SKILL.md`, `.github/agents/<role>.md`, optional `.github/prompts/<name>.prompt.md`, optional `.github/instructions/<name>.instructions.md`, and `.github/hooks/*.json` only when deterministic policy requires it. If no equivalent exists, add `docs/agent-tooling/<name>.md` rationale.
 - **After an agent makes a mistake**: Add a rule to the Boundaries section to prevent recurrence.
 - **After an architectural decision**: Create a new ADR in docs/adr/.
 - **On session start**: Quick-check that commands still work and module list matches reality.
