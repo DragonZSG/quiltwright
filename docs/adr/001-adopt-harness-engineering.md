@@ -27,6 +27,10 @@ The harness defines:
 - Shared UI and platform target boundaries are explicit.
 - Future module and command additions have a documented update path.
 - CI can detect missing or stale harness files.
+- Multi-agent workflow loops are checked into the repo and verified across Codex, Claude Code, and GitHub Copilot surfaces.
+- The quality guard provides a single command family for completion evidence.
+- Canonical workflow docs prevent drift between agent-specific surfaces.
+- `STYLEGUIDE.md` is the standing style authority for code, docs, scripts, CI, and agent artifacts.
 
 ### Harder
 

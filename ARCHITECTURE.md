@@ -6,6 +6,8 @@ quiltwright is a SwiftUI app for macOS and iOS. The current architecture is inte
 
 The repository has both SwiftPM and Xcode project metadata. `Package.swift` defines the shared UI library, the macOS executable, and the check executable. `Quiltwright.xcodeproj` defines the macOS and iOS app targets and shared schemes. Buildkite runs `.buildkite/pipeline.yml`, which delegates to `script/ci.sh`.
 
+The harness layer documents how agents should work in the repo. Canonical workflow loops live in `docs/agent-workflows/`, agent-specific wrappers live under `.agents/`, `.codex/`, `.claude/`, and `.github/`, and `STYLEGUIDE.md` is the standing style authority. `scripts/verify-harness.sh` checks harness consistency, while `scripts/quality-guard.sh` provides the completion gate for harness, docs, shell, and project checks.
+
 ## Module Map
 
 | Module | Path | Layer | Purpose | Depends on | Depended on by |
@@ -16,13 +18,29 @@ The repository has both SwiftPM and Xcode project metadata. `Package.swift` defi
 | QuiltwrightChecks | `Tests/QuiltwrightChecks` | Verification | Lightweight SwiftPM executable checks for shared behavior. | QuiltwrightUI | `script/ci.sh package` |
 | CI scripts | `script/ci.sh`, `.buildkite/pipeline.yml` | Tooling | Local and Buildkite build/check orchestration. | SwiftPM, xcodebuild | Developers, Buildkite |
 | Xcode project | `Quiltwright.xcodeproj` | Tooling | macOS and iOS app target definitions, build settings, and schemes. | Xcode | `script/ci.sh macos`, `script/ci.sh ios` |
+| Agent instructions | `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md` | Harness / guidance | Top-level agent guidance for Codex, Claude Code, and GitHub Copilot. | ARCHITECTURE.md, STYLEGUIDE.md, docs/agent-workflows | Agents |
+| Style guide | `STYLEGUIDE.md` | Documentation | Swift, SwiftUI, test, docs, script, CI, and agent artifact style rules. | Existing project conventions | Developers, agents, reviews |
+| Agent workflows | `docs/agent-workflows` | Harness / workflow docs | Canonical planning, implementation, review, and quality guard loops. | STYLEGUIDE.md, ARCHITECTURE.md | Agent surface wrappers, scripts/verify-harness.sh |
+| Agent surfaces | `.agents/skills`, `.codex/agents`, `.claude/skills`, `.claude/agents`, `.github/skills`, `.github/agents`, `.github/prompts` | Harness / wrappers | Thin Codex, Claude Code, and GitHub Copilot wrappers around canonical workflow docs. | docs/agent-workflows | Agents, scripts/verify-harness.sh |
+| Harness tooling | `scripts/verify-harness.sh`, `scripts/quality-guard.sh`, `scripts/test-verify-harness.sh`, `scripts/test-quality-guard.sh` | Harness / verification | Verifies harness structure and runs fast or full completion checks. | Bash, git, SwiftPM, script/ci.sh | Developers, agents, Buildkite |
 
 ## Layer Diagram
 
 Dependency direction:
 
 ```text
-Buildkite / local shell
+Buildkite / local shell / agent
+        |
+        +--> scripts/quality-guard.sh
+        |       |
+        |       +--> scripts/verify-harness.sh
+        |       |       |
+        |       |       +--> AGENTS.md / CLAUDE.md / .github/copilot-instructions.md
+        |       |       +--> docs/agent-workflows/manifest.txt
+        |       |       +--> .agents / .codex / .claude / .github agent surfaces
+        |       |
+        |       +--> SwiftPM: Package.swift -> QuiltwrightChecks -> QuiltwrightUI
+        |       +--> script/ci.sh all when run with --full
         |
         v
 script/ci.sh
@@ -65,6 +83,9 @@ There is no persistence, networking, service, or domain layer yet.
 
 - Update this file when modules, targets, dependency rules, commands, or architectural decisions change.
 - Keep `CLAUDE.md`, `AGENTS.md`, and `.github/copilot-instructions.md` consistent with command and boundary changes.
+- Treat `docs/agent-workflows/` as the canonical source for workflow loops, then keep Codex, Claude Code, and GitHub Copilot wrappers aligned with it.
+- Use `STYLEGUIDE.md` as the standing style reference for code, docs, scripts, CI, and agent artifacts.
+- Run `scripts/quality-guard.sh --fast` after harness, docs, shell, or shared UI changes; run `scripts/quality-guard.sh --full` for build-affecting changes.
 - Add an ADR for new architectural layers or toolchain decisions.
 
 <!-- EVOLVE: Add sequence diagrams once the app has user workflows. -->

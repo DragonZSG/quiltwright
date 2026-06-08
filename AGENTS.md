@@ -20,6 +20,10 @@ lint:           null
 format:         null
 check:          script/ci.sh all
 verify:         scripts/verify-harness.sh
+verify:test:    scripts/test-verify-harness.sh
+quality:        scripts/quality-guard.sh --fast
+quality:full:   scripts/quality-guard.sh --full
+quality:test:   scripts/test-quality-guard.sh
 ```
 
 `lint` and `format` are intentionally `null` because no Swift lint or format tool is configured. Do not add one without explicit approval.
@@ -29,6 +33,15 @@ verify:         scripts/verify-harness.sh
 `QuiltwrightUI` is the shared SwiftUI presentation module. `QuiltwrightMac` and `QuiltwrightiOS` are thin platform app entry targets. `QuiltwrightChecks` verifies shared UI behavior as a SwiftPM executable target. Buildkite uses `.buildkite/pipeline.yml`, which calls `script/ci.sh`.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full module map and dependency rules.
+
+## Agent Workflows
+
+Canonical workflow loops live in [docs/agent-workflows](./docs/agent-workflows/). Read the matching workflow before using or changing agent wrappers.
+
+- Planning: `planning-loop`
+- Implementation: `implementation-loop`
+- Reviews: `review-architecture`, `review-tests`, `review-security-privacy`, `review-ui-platform`, `review-performance`, `review-plans-specs`
+- Guard: `code-quality-guard`
 
 ## Modules
 
@@ -48,6 +61,8 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full module map and dependency 
 - Use 4-space indentation, trim trailing whitespace, and keep a final newline.
 - Add executable checks under `Tests/QuiltwrightChecks` when XCTest is not yet configured.
 - Keep `Package.swift`, Xcode target membership, schemes, and CI commands in sync when adding targets or source files.
+
+For detailed project style rules, see [STYLEGUIDE.md](./STYLEGUIDE.md).
 
 ## Boundaries
 
@@ -86,6 +101,7 @@ These files are living documents. Update them as the project evolves:
 
 - **After adding a new module**: Update ARCHITECTURE.md module map and dependency rules.
 - **After adding a new command**: Update the Commands section in all agent instruction files.
+- **After adding agent tooling or workflows**: Create or update equivalent guidance for every supported agent surface, not only the agent currently making the change. Codex uses `AGENTS.md`, `.agents/skills/<name>/SKILL.md`, `.codex/agents/<role>.toml`, and project `.codex/` config/hooks when deterministic policy requires it. Claude Code uses `CLAUDE.md`, `.claude/skills/<name>/SKILL.md`, `.claude/agents/<role>.md`, `.claude/commands/<name>.md` as legacy/manual compatibility, and hooks/settings only when deterministic policy requires it. GitHub Copilot uses `.github/copilot-instructions.md`, `.github/skills/<name>/SKILL.md`, `.github/agents/<role>.md`, optional `.github/prompts/<name>.prompt.md`, optional `.github/instructions/<name>.instructions.md`, and `.github/hooks/*.json` only when deterministic policy requires it. If no equivalent exists, add `docs/agent-tooling/<name>.md` explaining the coverage and why the missing companion is intentionally N/A.
 - **After an agent makes a mistake**: Add a rule to the Boundaries section to prevent recurrence.
 - **After an architectural decision**: Create a new ADR in docs/adr/.
 - **On session start**: Quick-check that commands still work and module list matches reality.

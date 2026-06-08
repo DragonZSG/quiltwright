@@ -16,6 +16,10 @@ Run commands from the repository root: `/Users/mgrant/Repos/quiltwright`.
 - Lint: not configured (`lint_cmd: null`)
 - Format: not configured (`format_cmd: null`)
 - Verify harness: `scripts/verify-harness.sh`
+- Test harness verifier: `scripts/test-verify-harness.sh`
+- Fast quality guard: `scripts/quality-guard.sh --fast`
+- Full quality guard: `scripts/quality-guard.sh --full`
+- Test quality guard: `scripts/test-quality-guard.sh`
 
 `script/ci.sh all` is the composite check command. It runs the SwiftPM check target, then the macOS and iOS Xcode builds. No dedicated lint or formatter command exists yet; do not install SwiftLint, SwiftFormat, or another tool without explicit approval.
 
@@ -24,6 +28,15 @@ Run commands from the repository root: `/Users/mgrant/Repos/quiltwright`.
 `QuiltwrightUI` is the shared presentation module. `QuiltwrightMac` and `QuiltwrightiOS` are platform app entry targets that render shared UI. `QuiltwrightChecks` is a lightweight SwiftPM executable test/check target for shared behavior. Build and CI orchestration live in `script/ci.sh` and `.buildkite/pipeline.yml`.
 
 For the full module map, layer diagram, and dependency rules, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+## Agent Workflows
+
+Canonical workflow loops live in [docs/agent-workflows](./docs/agent-workflows/). Read the matching workflow before using or changing agent wrappers.
+
+- Planning: `planning-loop`
+- Implementation: `implementation-loop`
+- Reviews: `review-architecture`, `review-tests`, `review-security-privacy`, `review-ui-platform`, `review-performance`, `review-plans-specs`
+- Guard: `code-quality-guard`
 
 ### Key Modules
 
@@ -43,6 +56,8 @@ For the full module map, layer diagram, and dependency rules, see [ARCHITECTURE.
 - Use 4-space indentation, trim trailing whitespace, and keep a final newline.
 - Add executable checks under `Tests/QuiltwrightChecks` when XCTest is not yet configured.
 - Keep `Package.swift`, Xcode target membership, schemes, and CI commands in sync when adding targets or source files.
+
+For detailed project style rules, see [STYLEGUIDE.md](./STYLEGUIDE.md).
 
 ## Boundaries
 
@@ -87,6 +102,7 @@ These files are living documents. Update them as the project evolves:
 
 - **After adding a new module**: Update ARCHITECTURE.md module map and dependency rules.
 - **After adding a new command**: Update the Commands section in all agent instruction files.
+- **After adding agent tooling or workflows**: Create or update equivalent guidance for every supported agent surface, not only the agent currently making the change. Codex uses `AGENTS.md`, `.agents/skills/<name>/SKILL.md`, `.codex/agents/<role>.toml`, and project `.codex/` config/hooks when deterministic policy requires it. Claude Code uses `CLAUDE.md`, `.claude/skills/<name>/SKILL.md`, `.claude/agents/<role>.md`, `.claude/commands/<name>.md` as legacy/manual compatibility, and hooks/settings only when deterministic policy requires it. GitHub Copilot uses `.github/copilot-instructions.md`, `.github/skills/<name>/SKILL.md`, `.github/agents/<role>.md`, optional `.github/prompts/<name>.prompt.md`, optional `.github/instructions/<name>.instructions.md`, and `.github/hooks/*.json` only when deterministic policy requires it. If no equivalent exists, add `docs/agent-tooling/<name>.md` explaining the coverage and why the missing companion is intentionally N/A.
 - **After an agent makes a mistake**: Add a rule to the Boundaries section to prevent recurrence.
 - **After an architectural decision**: Create a new ADR in docs/adr/.
 - **On session start**: Quick-check that commands still work and module list matches reality.
